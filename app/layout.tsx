@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import ThemeProvider from "@/providers/theme-provider";
 import Footer from "@/components/footer";
+import QueryProvider from "@/providers/query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,13 +26,15 @@ export default function RootLayout({
           <Link href="/login">Login</Link>
           <Link href="/categories/react">React</Link> 
           */}
-        <ThemeProvider attribute="class" defaultTheme="system">
-          <div className="flex flex-col justify-between min-h-screen">
-            <Header />
-            <div className="flex-grow"> {children} </div>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <div className="flex flex-col justify-between min-h-screen">
+              <Header />
+              <div className="flex-grow"> {children} </div>
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

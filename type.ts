@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export type Category = {
   id: number;
   name: string;
@@ -18,3 +20,7 @@ export type Post = {
   slug: string;
   content?: string;
 };
+
+export type PostWithCategory = Prisma.PostGetPayload<{
+  include: { cat: true };
+}>;

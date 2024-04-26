@@ -4,14 +4,21 @@ import PageContainer from "@/components/page-container";
 import PostsList from "@/components/posts-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Category } from "@/type";
+// import { Category } from "@/type";
+import { Category } from "@prisma/client";
 import { CATEGORIES } from "@/utils/categories";
 import { POSTS } from "@/utils/posts";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePosts } from "./hooks/usePosts";
+import { useCateogories } from "./hooks/useCategories";
 
 export default function Home() {
+  // get posts from api
+  const { data: posts, isLoading, error, isFetching } = usePosts(null);
+  const { data: categories } = useCateogories();
+
   /* const router = useRouter(); */
   return (
     <PageContainer>
@@ -41,15 +48,17 @@ export default function Home() {
 
         {/* Section List Categories */}
         <div className="mt-6 flex flex-col md:flex-row gap-4 justify-center items-center">
-          {CATEGORIES.map((category: Category) => (
+          {categories?.map((category: Category) => (
             <Button key={category.id} variant="outline">
-              <Link href={`/categories/${category.slug}`}>{category.name}</Link>
+              <Link href={`/categories/${category.slug}`}>
+                {category.title}
+              </Link>
             </Button>
           ))}
         </div>
 
         {/* Section List Posts */}
-        <PostsList posts={POSTS} />
+        {isFetching ? <p>Loading...</p> : <PostsList posts={posts} />}
       </div>
     </PageContainer>
 
