@@ -1,3 +1,4 @@
+import { getAuthSession } from "@/lib/auth-options";
 import prisma from "@/lib/connect";
 import { NextResponse } from "next/server";
 
@@ -19,6 +20,14 @@ export const GET = async () => {
 // http://localhost:3000/api/posts?cat=react
 export const GET = async (req: Request) => {
   try {
+    /*
+    // Restriction de l'accès aux API
+    const session = await getAuthSession();
+    if (!session) {
+      return NextResponse.json({ message: "unauthorized" }, { status: 401 });
+    }
+    */
+
     const { searchParams } = new URL(req.url);
     const catSlug = searchParams.get("cat");
 
