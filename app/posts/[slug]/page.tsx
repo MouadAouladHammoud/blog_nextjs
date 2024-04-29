@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 import { Eye, MessageCircle } from "lucide-react";
 import { usePost } from "@/app/hooks/usePost";
+import Image from "next/image";
 
 export default function SinglePostPage({
   params,
@@ -23,9 +24,14 @@ export default function SinglePostPage({
       <div className="p-8">
         {/* Section Image */}
         <div
-          style={{ backgroundImage: "url('/img/hero.jpg')" }}
-          className="rounded-lg aspect-square md:aspect-[2.4/1] overflow-hidden bg-cover"
+          // style={{ backgroundImage: "url('/img/hero.jpg')" }}
+          className="relative rounded-lg aspect-square md:aspect-[2.4/1] overflow-hidden bg-cover"
         >
+          <Image
+            src={post?.image || "/img/hero.jpg"}
+            fill
+            alt={post?.title || "Image"}
+          />
           <div className="h-full w-full flex flex-col justify-center items-center">
             <div className="sm:max-w-xl max-w-xs bg-secondary/80 p-4 rounded-lg">
               <h1 className="text-center font-bold text-3xl sm:text-5xl text-black dark:text-white">
