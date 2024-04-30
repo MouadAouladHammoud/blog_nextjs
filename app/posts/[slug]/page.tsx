@@ -7,6 +7,7 @@ import React from "react";
 import { Eye, MessageCircle } from "lucide-react";
 import { usePost } from "@/app/hooks/usePost";
 import Image from "next/image";
+import Comments from "@/components/comments";
 
 export default function SinglePostPage({
   params,
@@ -79,6 +80,8 @@ export default function SinglePostPage({
           className="mt-6"
           dangerouslySetInnerHTML={{ __html: post?.content as string }}
         ></div>
+
+        <Comments postSlug={slug} />
       </div>
     </PageContainer>
   );

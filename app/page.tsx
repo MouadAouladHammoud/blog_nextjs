@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePosts } from "./hooks/usePosts";
 import { useCateogories } from "./hooks/useCategories";
+import { User } from "@/components/user";
 
 export default function Home() {
   // get posts from api
@@ -60,6 +61,8 @@ export default function Home() {
         {/* Section List Posts */}
         {isFetching ? <p>Loading...</p> : <PostsList posts={posts} />}
       </div>
+
+      {/* <User /> */}
     </PageContainer>
 
     /* 

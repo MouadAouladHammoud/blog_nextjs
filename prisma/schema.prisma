@@ -23,6 +23,7 @@ model Post {
   image String?
   view Int @default(0)
   nbComments Int @default(0)
+  comments Comment[]
 
   // Category
   catSlug String
@@ -47,4 +48,19 @@ model User {
   password String
   name     String?
   posts Post[]
+  comments Comment[]
+}
+
+model Comment {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  content String
+
+  // User
+  userEmail String
+  user User @relation(fields: [userEmail], references: [email])
+
+  // Post
+  postSlug String
+  post Post @relation(fields: [postSlug], references: [slug])
 }
