@@ -1,5 +1,6 @@
 "use client";
 
+import { ReactQueryDevtools } from "react-query/devtools";
 import PageContainer from "@/components/page-container";
 import PostsList from "@/components/posts-list";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export default function Home() {
   /* const router = useRouter(); */
   return (
     <PageContainer>
+      <ReactQueryDevtools />
       <div className="py-10 px-4">
         {/* Section Hero */}
         <div

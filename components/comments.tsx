@@ -1,20 +1,23 @@
 "use client";
 
 import { Separator } from "@radix-ui/react-separator";
-import React, { SyntheticEvent, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Comment } from "@prisma/client";
 import axios from "axios";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useComments } from "@/app/hooks/useComments";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { CommentWithUser } from "@/type";
 
 export default function Comments({ postSlug }: { postSlug: string }) {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
+  const currentUser = session?.user;
+  const queryClients = useQueryClient();
+
   const [comment, setComment] = useState("");
 
   // create comment
@@ -23,20 +26,57 @@ export default function Comments({ postSlug }: { postSlug: string }) {
       .post("/api/comments", newComment)
       .then((res) => res.data);
   };
-  const { mutate, isLoading } = useMutation(createComment, {
-    onSuccess: (data: Comment) => {
-      alert("comment has been created");
-      console.log("data", data);
+  const { mutate: commentCreateMutation, isLoading } = useMutation(
+    createComment,
+    {
+      onSuccess: (data: Comment, variables, context) => {
+        console.log("🚀 ~ createComment ~ data:", data); // Affiche les données du commentaire créé
+        console.log("🚀 ~ createComment ~ variables:", variables); // Affiche les variables passées à la mutation (content et postSlug)
+        console.log("🚀 ~ createComment ~ context:", context); // Affiche le contexte utilisé pendant la mutation
+
+        // Invalide le cache des requêtes de commentaires pour le post spécifique, en forçant manuellement l'invalidation et de déclencher un rechargement des données pour s'assurer que l'interface d'utilisateur est à jour
+        // NB: Même avec "cacheTime" et "staleTime" réglés sur "Infinity", on peut forcer une mise à jour des données en utilisant "invalidateQueries".
+        queryClients.invalidateQueries(["comments", postSlug]); // Invalider les requêtes de cache liées pour mettre à jour les données affichées
+
+        alert("comment has been created");
+      },
+      onError: (error) => {
+        console.log("error", error);
+      },
+    }
+  );
+  const onSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault();
+    await commentCreateMutation({ content: comment, postSlug });
+  };
+
+  // delete comment
+  const deleteComment = async (id: string) => {
+    return await axios
+      .delete("/api/comments", { data: { id } })
+      .then((res) => res.data);
+  };
+  const commentDeleteMutation = useMutation(deleteComment, {
+    onSuccess: (data, variables, context) => {
+      console.log("🚀 ~ createComment ~ data:", data); // Affiche les données du commentaire créé
+      console.log("🚀 ~ createComment ~ variables:", variables); // Affiche les variables passées à la mutation (content et postSlug)
+      console.log("🚀 ~ createComment ~ context:", context); // Affiche le contexte utilisé pendant la mutation
+
+      // Invalide le cache des requêtes de commentaires pour le post spécifique, en forçant manuellement l'invalidation et de déclencher un rechargement des données pour s'assurer que l'interface d'utilisateur est à jour
+      // NB: Même avec "cacheTime" et "staleTime" réglés sur "Infinity", on peut forcer une mise à jour des données en utilisant "invalidateQueries".
+      queryClients.invalidateQueries(["comments", postSlug]); // Invalider les requêtes de cache liées pour mettre à jour les données affichées
+
+      alert("comment has been deleted");
     },
     onError: (error) => {
       console.log("error", error);
     },
   });
-
-  const onSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
-    await mutate({ content: comment, postSlug });
+  const onDeleteComment = async (id: string) => {
+    await commentDeleteMutation.mutateAsync(id); // "mutateAsync" pour les appels async
   };
+
+  useEffect(() => {}, []);
 
   // get comments
   const { data: comments, isFetching } = useComments(postSlug);
@@ -84,7 +124,21 @@ export default function Comments({ postSlug }: { postSlug: string }) {
 
             <div className="ml-3 p-4 border rounded-lg border-slate-400">
               <div className="flex items-center gap-2">
-                <span>{comment.user?.name}</span>
+                <span>
+                  {currentUser?.email === comment.user?.email ? (
+                    <>
+                      You{" "}
+                      <Button
+                        variant="link"
+                        onClick={() => onDeleteComment(comment.id)}
+                      >
+                        Delete your comment
+                      </Button>
+                    </>
+                  ) : (
+                    comment.user?.name
+                  )}
+                </span>
                 <span className="text-slate-500 text-sm">
                   {new Date(comment.createdAt).toLocaleDateString()}
                 </span>

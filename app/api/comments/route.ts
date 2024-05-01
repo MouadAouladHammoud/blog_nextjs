@@ -44,7 +44,31 @@ export const POST = async (req: Request) => {
     });
     return NextResponse.json(comment, { status: 200 });
   } catch (error) {
-    console.log("error route: ", error);
+    console.log("error: ", error);
+    return NextResponse.json(
+      { message: "something went wrong" },
+      { status: 500 }
+    );
+  }
+};
+
+export const DELETE = async (req: Request) => {
+  const session = await getAuthSession();
+  if (!session || !session.user || !session.user.email) {
+    return NextResponse.json({ message: "unauthorized" }, { status: 403 });
+  }
+
+  try {
+    const body = await req.json();
+    await prisma.comment.delete({
+      where: {
+        id: body.id,
+        userEmail: session.user.email,
+      },
+    });
+    return NextResponse.json({ status: 204 });
+  } catch (error) {
+    console.log("error: ", error);
     return NextResponse.json(
       { message: "something went wrong" },
       { status: 500 }

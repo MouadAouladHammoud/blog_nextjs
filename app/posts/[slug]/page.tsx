@@ -1,5 +1,6 @@
 "use client";
 
+import { ReactQueryDevtools } from "react-query/devtools";
 import PageContainer from "@/components/page-container";
 import { AvatarFallback, Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +23,7 @@ export default function SinglePostPage({
 
   return (
     <PageContainer>
+      <ReactQueryDevtools />
       <div className="p-8">
         {/* Section Image */}
         <div
